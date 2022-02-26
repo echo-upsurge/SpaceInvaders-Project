@@ -17,7 +17,7 @@ class Player {
 		this.rotation = 0
 
 		const image = new Image()
-		image.src = './img/redbox.jpg'
+		image.src = './assets/ship.png'
 		
 		image.onload = () => {
 			const scale = .15
@@ -66,17 +66,19 @@ class Player {
 	
 }
 
+// -- Projectile Rendering -- \\
+
 class Projectile{
 	constructor({position, velocity}) {
 		this.position = position
 		this.velocity = velocity
-
-		this.radius = 3
+        this.width = 4
+		this.height = 20
 	}
 
 	draw() {
 		c.beginPath()
-		c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI*2)
+		c.rect(this.position.x - this.width / 2, this.position.y, this.width, this.height)
 		c.fillStyle = 'red'
 		c.fill()
 		c.closePath()
@@ -100,6 +102,9 @@ const keys = {
 		pressed: false
 	},
 	space: {
+		pressed: false
+	},
+    x: {
 		pressed: false
 	}
 	
@@ -134,35 +139,56 @@ function animate() {
 	}
 }
 
+function sleep(milliseconds) {
+    const date = Date.now();
+    let currentDate = null;
+    do {
+      currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
+  }
+
+var oldShotTime = performance.now()
+
+function shoot() {
+    projectiles.push(new Projectile({
+        position: {
+            x: player.position.x + player.width/2,
+            y: player.position.y
+        },
+        velocity: {
+            x: 0,
+            y: -10
+        }
+    }))
+    oldShotTime = performance.now()
+}
+
 animate()
+
+// -- Key Logger -- \\
 
 addEventListener('keydown', ({key}) => {
 	
 	switch (key) {
 		case 'a':
-			//console.log('left')
 			keys.a.pressed = true
 			break
+
 		case 'd':
-			//console.log('right')
 			keys.d.pressed = true
 			break
-		case ' ':
-			//console.log('space')
-			keys.space.pressed = true
-			projectiles.push(new Projectile({
-				position: {
-					x: player.position.x + player.width/2,
-					y: player.position.y
-				},
-				velocity: {
-					x: 0,
-					y: -10
-				}
-			}))
 
-			console.log(projectiles)
-			break
+		case ' ':
+                keys.space.pressed = true
+                newShotTime = performance.now()
+                if ((newShotTime - oldShotTime) > 150) {
+                    shoot()
+                }
+            break
+
+        case 'x':
+		    keys.x.pressed = true
+		    break
 	}
 })
 
@@ -180,5 +206,9 @@ addEventListener('keyup', ({key}) => {
 			
 			keys.space.pressed = false
 			break
+            
+        case 'x':
+            keys.x.pressed = false
+            break
 	}
 })
