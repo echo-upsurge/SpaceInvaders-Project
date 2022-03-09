@@ -280,7 +280,7 @@ let game = {
 
 let score = 0
 
-//beautirful stars
+//beautiful stars
 for (let i = 0; i < 200; i++) {
 	particleRadius = Math.random() * 2
 	particles.push(new Particle({
@@ -314,7 +314,46 @@ function createParticles({object, color, fades}) {
 }
 
 function animate() {
-	if (!game.active) return
+
+	
+	if (!game.active){
+		//show game over screen and restart button
+		c.fillStyle = 'black'
+		c.fillRect(0, 0, canvas.width, canvas.height)
+		c.fillStyle = 'white'
+		c.font = '48px sans-serif'
+		c.fillText('Game Over', canvas.width/2 - 150, canvas.height/2 - 50)
+		c.font = '24px sans-serif'
+		c.fillText('Press Space to Restart', canvas.width/2 - 150, canvas.height/2)
+		requestAnimationFrame(animate)
+		particles.forEach((particle, i) => {
+		
+			if (particle.position.x - particle.radius >= canvas.width) {
+				particle.position.y = Math.random() * canvas.height
+				particle.position.x = -particle.radius
+			}
+			if (particle.opacity <= 0) {
+				setTimeout(() => {
+				particles.splice(i, 1)
+				}, 0)
+			} else {
+			particle.update()
+			}
+		})
+		//restart game if x is pressed
+		if (keys.space.pressed){
+			game.active = true
+			game.over = false
+			player.position.x = canvas.width/2 - player.width/2
+			player.opacity = 1
+			score = 0
+			scoreEl.innerHTML = score
+		}
+
+		return
+	}
+
+	
 	requestAnimationFrame(animate)
 	c.fillStyle = 'black'
 	c.fillRect(0, 0, canvas.width, canvas.height)
@@ -497,7 +536,7 @@ animate()
 // -- Key Logger -- \\
 
 addEventListener('keydown', ({key}) => {
-	if (game.over) return
+	//if (game.over) return
 	switch (key) {
 		case 'a':
 			keys.a.pressed = true
@@ -508,6 +547,7 @@ addEventListener('keydown', ({key}) => {
 			break
 
 		case ' ':
+			
                 keys.space.pressed = true
                 newShotTime = performance.now()
                 if ((newShotTime - oldShotTime) > 150) {
