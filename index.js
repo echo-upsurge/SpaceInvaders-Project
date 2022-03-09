@@ -435,11 +435,10 @@ function animate() {
 		grid.update()
 
 		//shoot invader projectiles
-		if (frames % 100 === 0 && grid.invaders.length > 0) {
+		if (frames % (130 -  + Math.floor(score/1000)) === 0 && grid.invaders.length > 0) {
 			grid.invaders[Math.floor(Math.random() * grid.invaders.length)].shoot(
 				invaderProjectiles)
 		}
-		
 		
 		grid.invaders.forEach((invader, i) => {
 			invader.update({velocity: grid.velocity})
@@ -468,6 +467,7 @@ function animate() {
 									(projectile2) => projectile2 === projectile)
 
 								if (invaderFound && projectileFound) {
+
 									score += 100
 									invaderHit.play()
 									scoreEl.innerHTML = score
@@ -517,7 +517,7 @@ function animate() {
 		player.rotation = 0
 	}
 
-	if (frames % 5000 === 0 || grids.length === 0) {
+	if (frames % (3000 - Math.floor(score/100)) === 0|| grids.length === 0) {
 		grids.push(new Grid())
 		
 		frames = 0
@@ -564,7 +564,7 @@ addEventListener('keydown', ({key}) => {
 			
                 keys.space.pressed = true
                 newShotTime = performance.now()
-                if ((newShotTime - oldShotTime) > 50 && !game.over){
+                if ((newShotTime - oldShotTime) > 80 && !game.over){
 					laserShoot.play();
                     shoot()
                 }
