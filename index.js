@@ -251,9 +251,13 @@ class Grid {
 
 const player = new Player()
 const projectiles = []
-const grids = []
+let grids = []
 const invaderProjectiles = []
 const particles = []
+const laserShoot = new Audio('./assets/laserShoot.wav');
+const invaderHit = new Audio('./assets/hitHurt.wav');
+const playerHit = new Audio('./assets/game over.mp3');
+
 
 //key state intialization
 const keys = {
@@ -326,6 +330,9 @@ function animate() {
 		c.font = '24px sans-serif'
 		c.fillText('Press Space to Restart', canvas.width/2 - 150, canvas.height/2)
 		requestAnimationFrame(animate)
+		grids = []
+
+
 		particles.forEach((particle, i) => {
 		
 			if (particle.position.x - particle.radius >= canvas.width) {
@@ -340,7 +347,7 @@ function animate() {
 			particle.update()
 			}
 		})
-		//restart game if x is pressed
+		//restart game if space is pressed
 		if (keys.space.pressed){
 			game.active = true
 			game.over = false
@@ -348,16 +355,21 @@ function animate() {
 			player.opacity = 1
 			score = 0
 			scoreEl.innerHTML = score
+			grids.push(new Grid())
 		}
 
 		return
 	}
 
 	
+
 	requestAnimationFrame(animate)
 	c.fillStyle = 'black'
 	c.fillRect(0, 0, canvas.width, canvas.height)
 	player.update()
+
+	
+
 	particles.forEach((particle, i) => {
 		
 		if (particle.position.x - particle.radius >= canvas.width) {
@@ -391,6 +403,7 @@ function animate() {
 					invaderProjectiles.splice(index, 1)
 					player.opacity = 0
 					game.over = true
+					playerHit.play()
 
 				}, 0) 
 
@@ -456,6 +469,7 @@ function animate() {
 
 								if (invaderFound && projectileFound) {
 									score += 100
+									invaderHit.play()
 									scoreEl.innerHTML = score
 									createParticles({
 										object: invader,
@@ -503,7 +517,7 @@ function animate() {
 		player.rotation = 0
 	}
 
-	if (frames % 5000 === 0) {
+	if (frames % 5000 === 0 || grids.length === 0) {
 		grids.push(new Grid())
 		
 		frames = 0
@@ -550,7 +564,8 @@ addEventListener('keydown', ({key}) => {
 			
                 keys.space.pressed = true
                 newShotTime = performance.now()
-                if ((newShotTime - oldShotTime) > 150) {
+                if ((newShotTime - oldShotTime) > 50 && !game.over){
+					laserShoot.play();
                     shoot()
                 }
             break
